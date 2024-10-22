@@ -1,0 +1,302 @@
+Open a terminal window to the current working directory.
+# /home/training
+# 1. Print the Hadoop version
+hadoop version
+# 2. List the contents of the root directory in HDFS
+#
+hadoop fs -ls /
+# 3. Report the amount of space used and
+# available on currently mounted filesystem
+#
+hadoop fs -df hdfs:/
+# 4. Count the number of directories,files and bytes under
+# the paths that match the specified file pattern
+#
+hadoop fs -count hdfs:/
+# 5. Run a DFS filesystem checking utility
+#
+hadoop fsck - /
+# 6. Run a cluster balancing utility
+#
+hadoop balancer
+# 7. Create a new directory named "hadoop" below the
+# /user/training directory in HDFS. Since you're
+# currently logged in with the "training" user ID,
+# /user/training is your home directory in HDFS.
+#
+hadoop fs -mkdir /user/training/hadoop
+# 8. Add a sample text file from the local directory
+# named "data" to the new directory you created in HDFS
+# during the previous step.
+#
+hadoop fs -put data/sample.txt /user/training/hadoop
+# 9. List the contents of this new directory in HDFS.
+#
+hadoop fs -ls /user/training/hadoop
+# 10. Add the entire local directory called "retail" to the
+# /user/training directory in HDFS.
+#
+hadoop fs -put data/retail /user/training/hadoop
+# 11. Since /user/training is your home directory in HDFS,
+# any command that does not have an absolute path is
+# interpreted as relative to that directory. The next
+# command will therefore list your home directory, and
+# should show the items you've just added there.
+#
+hadoop fs -ls
+# 12. See how much space this directory occupies in HDFS.
+#
+hadoop fs -du -s -h hadoop/retail
+# 13. Delete a file 'customers' from the "retail" directory.
+#
+hadoop fs -rm hadoop/retail/customers
+# 14. Ensure this file is no longer in HDFS.
+#
+hadoop fs -ls hadoop/retail/customers
+# 15. Delete all files from the "retail" directory using a wildcard.
+#
+hadoop fs -rm hadoop/retail/*
+# 16. To empty the trash
+#
+hadoop fs -expunge
+# 17. Finally, remove the entire retail directory and all
+# of its contents in HDFS.
+#
+hadoop fs -rm -r hadoop/retail
+# 18. List the hadoop directory again
+#
+hadoop fs -ls hadoop
+# 19. Add the purchases.txt file from the local directory
+# named "/home/training/" to the hadoop directory you created in HDFS
+#
+hadoop fs -copyFromLocal /home/training/purchases.txt hadoop/
+# 20. To view the contents of your text file purchases.txt
+# which is present in your hadoop directory.
+#
+hadoop fs -cat hadoop/purchases.txt
+# 21. Add the purchases.txt file from "hadoop" directory which is present in HDFS directory
+# to the directory "data" which is present in your local directory
+#
+hadoop fs -copyToLocal hadoop/purchases.txt /home/training/data
+# 22. cp is used to copy files between directories present in HDFS
+#
+hadoop fs -cp /user/training/*.txt /user/training/hadoop
+# 23. '-get' command can be used alternaively to '-copyToLocal' command
+#
+hadoop fs -get hadoop/sample.txt /home/training/
+# 24. Display last kilobyte of the file "purchases.txt" to stdout.
+#
+hadoop fs -tail hadoop/purchases.txt
+# 25. Default file permissions are 666 in HDFS
+# Use '-chmod' command to change permissions of a file
+#
+hadoop fs -ls hadoop/purchases.txt
+sudo -u hdfs hadoop fs -chmod 600 hadoop/purchases.txt
+# 26. Default names of owner and group are training,training
+# Use '-chown' to change owner name and group name simultaneously
+#
+hadoop fs -ls hadoop/purchases.txt
+sudo -u hdfs hadoop fs -chown root:root hadoop/purchases.txt
+# 27. Default name of group is training
+# Use '-chgrp' command to change group name
+#
+hadoop fs -ls hadoop/purchases.txt
+sudo -u hdfs hadoop fs -chgrp training hadoop/purchases.txt
+# 28. Move a directory from one location to other
+#
+hadoop fs -mv hadoop apache_hadoop
+# 29. Default replication factor to a file is 3.
+# Use '-setrep' command to change replication factor of a file
+#
+hadoop fs -setrep -w 2 apache_hadoop/sample.txt
+# 30. Copy a directory from one node in the cluster to another
+# Use '-distcp' command to copy,
+# -overwrite option to overwrite in an existing files
+# -update command to synchronize both directories
+#
+hadoop fs -distcp hdfs://namenodeA/apache_hadoop hdfs://namenodeB/hadoop
+# 31. Command to make the name node leave safe mode
+#
+hadoop fs -expunge
+sudo -u hdfs hdfs dfsadmin -safemode leave
+# 32. List all the hadoop file system shell commands
+#
+hadoop fs
+# 33. Last but not least, always ask for help!
+#
+hadoop fs -help
+
+
+------------------------------------------------Bloom---------------------------------------------- 
+
+# Load the required packages
+if (!requireNamespace("utils", quietly = TRUE)) install.packages("utils")
+
+# Start the code
+streamData <- function() {
+  # Taking input for the length of the stream data
+  m <- as.integer(readline(prompt = "Enter the length of the stream data (m): "))
+  dataStream <- rep(0, m)
+  
+  # Taking input for the number of inputs to train the array
+  n <- as.integer(readline(prompt = "Enter the number of inputs to train the array (n): "))
+  
+  # Training the array
+  for (i in 1:n) {
+    input <- as.integer(readline(prompt = "Enter a number to train the array: "))
+    hash1 <- (input %% 5) %% m
+    hash2 <- ((2 * input + 3) %% 5) %% m
+    if (dataStream[hash1 + 1] != 1) {
+      dataStream[hash1 + 1] <- 1
+    }
+    if (dataStream[hash2 + 1] != 1) {
+      dataStream[hash2 + 1] <- 1
+    }
+  }
+  
+  # Print the training array
+  cat("Training Array: ")
+  print(dataStream)
+  
+  # Taking input for the number of times to test
+  x <- as.integer(readline(prompt = "Enter the number of times to test (x): "))
+  
+  # Testing the array
+  for (i in 1:x) {
+    testValue <- as.integer(readline(prompt = "Enter a number to test: "))
+    hash1 <- (testValue %% 5) %% m
+    hash2 <- ((2 * testValue + 3) %% 5) %% m
+    
+    if (dataStream[hash1 + 1] == 0 && dataStream[hash2 + 1] == 0) {
+      cat("Number is not in the stream.\n")
+    } else if (dataStream[hash1 + 1] == 1 && dataStream[hash2 + 1] == 1) {
+      cat("Number is in the stream.\n")
+    } else {
+      cat("Value not present in the stream.\n")
+    }
+  }
+}
+
+# Run the function
+streamData()
+
+
+-----------------------------------------FM----------------------------------
+
+library (digest)
+# Function to perform bit extraction
+rightmost zero <- function(x) {
+	return (nchar (gsub(".*1", "", as.character (intToBits(x)))))
+}
+# FM algorithm implementation
+flajolet martin <- function (data) {
+	max_zeroes <- 0
+	for (d in data) {
+		hash_val <- as.numeric(digest (d, algo = "md5", serialize = FALSE))
+		max_zeroes <- max (max_zeroes, rightmost_zero (hash_val))
+}
+	return (2^max_zeroes) # Estimate of distinct elements
+}
+
+# Example usage
+data_stream <- c("Alice", "Bob", "Alice", "Charlie", "Bob", "David")
+distinct_count_estimate <- flajolet martin (data stream)
+print (distinct_count_estimate)
+
+
+================r prog=====================================
+
+# Create a Data Frame with details of 5 employees
+employee_data <- data.frame(
+Employee_ID = c(101, 102, 103, 104, 105),
+Name = c("John", "Emily", "Michael", "Sarah", "David"),
+Age = c(28, 34, 29, 41, 36),
+#Department = c("HR", "IT", "Finance", "Marketing", "Operations"),
+Department = as.factor(c("HR", "IT", "Finance", "Marketing",
+"Operations")),
+Salary = c(50000, 75000, 60000, 72000, 67000)
+)
+# Display the Data Frame
+print("Employee Data Frame:")
+print(employee_data)
+# Display the summary of the data
+print("Summary of Employee Data:")
+summary(employee_data)
+
+
+
+
+
+# (B) Write the script in R to sort the values contained in the
+following vector in ascending order
+# and descending order: (23, 45, 10, 34, 89, 20, 67, 99). Demonstrate
+the output using graph.
+data <- c(23, 45, 10, 34, 89, 0, 67, 99)
+# Ascending order
+asc <- sort(data)
+print(asc)
+# Descending order
+desc <- sort(data, decreasing = TRUE)
+print(desc)
+plot(asc,col="red")
+points(desc,col="blue")
+
+
+
+
+# (B) The following table shows the number of units of different
+products sold on different days:
+# Create five sample numeric vectors from this data visualize data
+using R.
+day<-c("monday","tuesday","wednesday","thursday","friday")
+bread<-c(12,3,4,11,9)
+milk<-c(71,27,18,20,15)
+cola<-c(10,1,33,6,12)
+chocolate<-c(6,7,4,13,12)
+detergent<-c(5,8,12,20,23)
+#matrix
+data<-data.frame(bread,milk,cola,chocolate,detergent)
+#bread sold on diff days
+barplot(bread,names.arg = day)
+#all items sold on diff days
+barplot(as.matrix(data),beside=TRUE,col=rainbow(5),main="product sales
+by day")
+
+
+
+
+employees<-data.frame(
+name=factor(c("Vivek","Karan","James","Soham","Renu","Farah",
+"Hetal","Mary","Ganesh","Krish"),
+levels=c("Vivek","Karan","James","Soham","Renu","Farah",
+"Hetal","Mary","Ganesh","Krish")),
+salaries=c(21000,55000,67000,50000,54000,40000,30000,
+70000,20000,15000)
+)
+employees
+new_employee<-data.frame(
+name=factor(c("A","B","C","D","E"), levels=c("A","B","C","D","E")),
+salaries=c(10000,22000,28000,32000,30000)
+)
+combined<-rbind(employees,new_employee)
+combined
+ggplot(combined,aes(x=name,y=factor(salaries),fill=name))+geom_bar(stat="ide
+ntity")
+#plotting without ggplot:
+barplot(combined$salaries,names.arg = combined$name)
+
+
+
+
+df<-data.frame(
+course=c(1:6),
+id=c(11:16),
+class=c(1,2,1,2,1,2),
+marks=c(56,75,48,69,84,53)
+)
+df
+#subset of course less then 3 by using [] brackets
+df[df$course<3, ]
+#subset where course<3 or class=2 using subset func
+df1<-subset(df,course<3|class==2)
+df1
